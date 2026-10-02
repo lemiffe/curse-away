@@ -14,7 +14,7 @@
  * groups, or a combined regex that fails to compile) are always scanned.
  */
 
-import { LEFT, RIGHT } from "./boundaries.js";
+import { LEFT, RIGHT, WORD_CLASS } from "./boundaries.js";
 
 export interface Prefilter {
   /** Matches iff some combinable rule may match; null = no top-level shortcut. */
@@ -42,23 +42,48 @@ const UNSAFE_TO_COMBINE = /\\[1-9]|\\k<|\(\?<(?![=!])/;
 function combine(sources: string[], ignoreCase: boolean): string {
   const both: string[] = []; // LEFT … RIGHT (every rule from parseRules)
   const leftOnly: string[] = [];
+  const embeddedBoth: string[] = []; // LEFT \w* … RIGHT, relaxed to … RIGHT (see below)
   const others: string[] = [];
   for (const s of sources) {
     if (!s.startsWith(LEFT)) {
       others.push(`(?:${s})`);
       continue;
     }
-    const rest = s.slice(LEFT.length);
-    if (rest.endsWith(RIGHT) && !rest.endsWith("\\" + RIGHT)) {
-      both.push(`(?:${rest.slice(0, -RIGHT.length)})`);
-    } else {
-      leftOnly.push(`(?:${rest})`);
-    }
+    let rest = s.slice(LEFT.length);
+    const right = rest.endsWith(RIGHT) && !rest.endsWith("\\" + RIGHT);
+    if (right) rest = rest.slice(0, -RIGHT.length);
+    // "Term embedded in a word" rules start with \w* / \w+: at every word start they swallow
+    // the word and backtrack through it, which also defeats V8's first-character checks for
+    // the whole alternation. A prefilter may over-approximate (never miss), so drop the
+    // LEFT \w* prefix here: wherever `LEFT \w* X` matches, `X` alone matches too. The real
+    // per-rule scan still uses the full rule.
+    const relaxed = stripLeadingWord(rest);
+    if (relaxed !== null) {
+      if (right) embeddedBoth.push(relaxed);
+      else others.push(relaxed);
+    } else if (right) both.push(`(?:${rest})`);
+    else leftOnly.push(`(?:${rest})`);
   }
   const parts: string[] = [];
   if (both.length) parts.push(`${LEFT}(?:${dispatch(both, ignoreCase)})${RIGHT}`);
   if (leftOnly.length) parts.push(`${LEFT}(?:${dispatch(leftOnly, ignoreCase)})`);
+  if (embeddedBoth.length) parts.push(`(?:${embeddedBoth.join("|")})${RIGHT}`);
   return [...parts, ...others].join("|");
+}
+
+/**
+ * `(?:\w*X)` / `(?:\w+X)` (lazy forms too) -> `(?:X)`; null if `src` doesn't start that way
+ * or nothing would be left. `\w` here is toJsPattern's Unicode word class.
+ */
+function stripLeadingWord(src: string): string | null {
+  const head = `(?:${WORD_CLASS}`;
+  if (!src.startsWith(head) || groupEnd(src, 0) !== src.length - 1) return null;
+  let i = head.length;
+  if (src[i] !== "*" && src[i] !== "+") return null;
+  i++;
+  if (src[i] === "?") i++; // lazy
+  const rest = src.slice(i, -1);
+  return rest ? `(?:${rest})` : null;
 }
 
 // -- first-character dispatch ---------------------------------------------------------

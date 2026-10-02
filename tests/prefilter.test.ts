@@ -64,6 +64,16 @@ describe("buildPrefilter", () => {
     expect(candidateRules(pre, "aquxxa xyyy", rules.length)).toEqual([2, 3]);
   });
 
+  it("relaxes 'term embedded in a word' rules (\\w*X) without missing matches", () => {
+    const rules = parseRules([String.raw`/\w*fooz\w*/` + "\tx", "/barz/\ty", "/quxx/\tz",
+      "/a1/\tq", "/b2/\tq", "/c3/\tq", "/d4/\tq", "/e5/\tq", "/f6/\tq"]).map(([rx]) => rx);
+    const pre = buildPrefilter(rules, 2);
+    for (const t of ["xfoozy", "fooz", "a_fooz_b", "uberfoozing!"]) {
+      expect(candidateRules(pre, t, rules.length)).toContain(0);
+    }
+    expect(candidateRules(pre, "nothing to see", rules.length)).toEqual([]);
+  });
+
   it("always scans rules with back-references or named groups", () => {
     const rules = [/(a)\1/giu, /(?<n>b)\k<n>/giu, /c/giu];
     expect(buildPrefilter(rules).always).toEqual([0, 1]);

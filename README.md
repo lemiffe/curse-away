@@ -10,10 +10,10 @@ Curse-away is not on npm yet, so install it straight from GitHub.
 
 ```bash
 # pnpm — pin a release tag (recommended)
-pnpm add "github:lemiffe/curse-away#v1.0.0"
+pnpm add "github:lemiffe/curse-away#v1.0.1"
 
 # npm
-npm install "github:lemiffe/curse-away#v1.0.0"
+npm install "github:lemiffe/curse-away#v1.0.1"
 
 # optional language auto-detection
 pnpm add tinyld
@@ -77,27 +77,41 @@ import { registerLanguage, mask } from "curse-away";
 import { es, fr } from "curse-away/languages";   // or: import { all } ... registerLanguage(...all)
 
 registerLanguage(es, fr);
-mask(text, "es");                   // English + Spanish
+mask(text);                         // English only (the default)
+mask(text, "es");                   // English + Spanish  (shorthand for { lang: "es" })
 ```
 
-The module-level helpers always filter against English **plus** the explicit `lang`
-(English swears leak into every language, so it stays on). `"en"` is the default.
+The module-level helpers are **English-only by default**. Every helper (`mask`,
+`maskFull`, `safeSubstitute`, `dropProfanity`, `containsProfanity`,
+`containsPhoneticProfanity`, `resolveLanguages`) takes an optional second argument —
+a language code or `{ multilingual, lang }`:
+
+| Call | Lists applied |
+|---|---|
+| `mask(text)` | English |
+| `mask(text, "es")` / `mask(text, { lang: "es" })` | English + Spanish |
+| `mask(text, { multilingual: true })` | English + the auto-detected language (if registered) |
+| `mask(text, { multilingual: false, lang: "es" })` | English (multilingual forced off) |
+
+English always stays on, since English swears leak into every language.
 
 ### Language auto-detection
 
-Register a detector and the helpers pick the extra language for you (it only takes effect
-for registered languages). Detection uses [tinyld](https://github.com/komodojp/tinyld),
-an optional peer dependency:
+With `multilingual: true` (and no `lang`), the helpers detect the text's language and add
+its list, if registered. Detection uses [tinyld](https://github.com/komodojp/tinyld), an
+optional peer dependency:
 
 ```ts
-import { setLanguageDetector } from "curse-away";
+import { mask, setLanguageDetector } from "curse-away";
 import { tinyldDetector } from "curse-away/detect";        // ~600 KB, more accurate
 // import { tinyldDetector } from "curse-away/detect-light"; // ~70 KB, for browsers
 
 setLanguageDetector(tinyldDetector);
+mask(text, { multilingual: true });
 ```
 
-Or pass any `(text) => languageCode | null` function of your own.
+Or pass any `(text) => languageCode | null` function of your own. Without
+`multilingual: true` the detector is never called.
 
 ## How matching works
 
@@ -114,8 +128,8 @@ at 30–40 words, ~10% containing profanity), Node 24 / V8:
 
 | Filter | Throughput | Latency p50 / p90 / p99 |
 |---|---|---|
-| English | ~45,000–50,000 msg/s | ~7 µs / ~50 µs / ~190 µs |
-| English + one language | ~30,000 msg/s | |
+| English | ~30,000 msg/s | ~11 µs / ~70 µs / ~290 µs |
+| English + one language | ~24,000 msg/s | |
 
 How: rules are combined into prefilter regexes (with their shared word-boundary
 lookarounds factored out), so a clean message is cleared by **one** regex test instead of
@@ -126,11 +140,12 @@ Results are identical to a plain rule-by-rule scan (and to pythanity).
 Tips for web clients:
 
 - **Warm up** at start-up, e.g. `requestIdleCallback(() => getFilter("en").warmUp())`.
-  V8 compiles regexes lazily: the first message otherwise costs ~0.1 s, the next few a
-  few ms; after `warmUp()` (≈0.2 s, off the critical path) the first message costs ~8 ms.
-- **Pass `lang`** when you already know it (per user / room) instead of auto-detecting:
-  detection (~0.3 ms per message with tinyld) costs far more than filtering. If you do
-  auto-detect, skip short messages: `setLanguageDetector(tinyldDetector, { minLength: 30 })`.
+  V8 compiles regexes lazily: the first message otherwise costs ~0.15 s, the next few a
+  few ms; after `warmUp()` (≈0.3 s, off the critical path) the first message costs ~13 ms.
+- **Pass `lang`** when you already know it (per user / room) instead of
+  `{ multilingual: true }`: detection (~0.3 ms per message with tinyld) costs far more than
+  filtering. If you do auto-detect, skip short messages:
+  `setLanguageDetector(tinyldDetector, { minLength: 30 })`.
 - **Register only the languages you need.** Filtering against all 28 lists at once is
   ~20x slower than English alone.
 - Very busy UIs can run the filter in a Web Worker to keep the main thread free.

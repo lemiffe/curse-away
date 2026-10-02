@@ -12,9 +12,9 @@
  *   containsProfanity("all clean");   // false
  *
  * English is bundled. Other languages are opt-in (`curse-away/languages`) so browser
- * bundles stay small. The module-level helpers always filter against English **plus** the
- * explicit `lang`, or the auto-detected language when a detector is registered
- * (`curse-away/detect`). English swears leak into every language, so it stays on.
+ * bundles stay small. The module-level helpers are English-only by default; pass a language
+ * (`mask(text, "es")`) or `{ multilingual: true }` to also apply the explicit / auto-detected
+ * language (`curse-away/detect`). English swears leak into every language, so it stays on.
  * Build a {@link Filter} directly for full control.
  */
 
@@ -95,12 +95,40 @@ export function detectLanguage(text: string): string | null {
   return code ? code.split("-")[0]!.toLowerCase() : null;
 }
 
+/** Per-call language options for the module-level helpers. */
+export interface LanguageOptions {
+  /**
+   * Also filter against a second language: the explicit `lang`, or else the auto-detected
+   * one (see {@link setLanguageDetector}). When false, only English is used and no
+   * detection runs. Defaults to `true` when `lang` is given, otherwise `false`.
+   */
+  multilingual?: boolean;
+  /** The extra language to apply (e.g. `"es"`); skips auto-detection. */
+  lang?: string | null;
+}
+
+/** A language code (shorthand for `{ lang }`) or {@link LanguageOptions}. */
+export type LanguageArg = string | null | undefined | LanguageOptions;
+
+function toOptions(arg: LanguageArg): { multilingual: boolean; lang: string | null } {
+  if (arg == null) return { multilingual: false, lang: null };
+  if (typeof arg === "string") return { multilingual: true, lang: arg };
+  const lang = arg.lang ?? null;
+  return { multilingual: arg.multilingual ?? lang !== null, lang };
+}
+
 /**
- * The languages to filter against: always English, plus the explicit `lang` or the
- * auto-detected one (when a list for it is registered).
+ * The languages to filter against: always English, plus — when multilingual — the
+ * explicit `lang` or the auto-detected one (if a list for it is registered).
+ *
+ *   resolveLanguages(text)                          // ["en"]
+ *   resolveLanguages(text, "es")                    // ["en", "es"]
+ *   resolveLanguages(text, { multilingual: true })  // ["en", <detected>] or ["en"]
  */
-export function resolveLanguages(text: string, lang?: string | null): string[] {
+export function resolveLanguages(text: string, options?: LanguageArg): string[] {
+  const { multilingual, lang } = toOptions(options);
   const langs = ["en"];
+  if (!multilingual) return langs;
   let extra = lang || detectLanguage(text);
   if (extra) {
     extra = extra.split("-")[0]!.toLowerCase();
@@ -127,36 +155,36 @@ export function getFilter(...langs: string[]): Filter {
   return f;
 }
 
-function filterFor(text: string, lang?: string | null): Filter {
-  return getFilter(...resolveLanguages(text, lang));
+function filterFor(text: string, options?: LanguageArg): Filter {
+  return getFilter(...resolveLanguages(text, options));
 }
 
 /** Mask each match, keeping first + last char. */
-export function mask(text: string, lang?: string | null): string {
-  return filterFor(text, lang).mask(text);
+export function mask(text: string, options?: LanguageArg): string {
+  return filterFor(text, options).mask(text);
 }
 
 /** Mask each match completely. */
-export function maskFull(text: string, lang?: string | null): string {
-  return filterFor(text, lang).maskFull(text);
+export function maskFull(text: string, options?: LanguageArg): string {
+  return filterFor(text, options).maskFull(text);
 }
 
 /** Replace each match with its rule's safe word. */
-export function safeSubstitute(text: string, lang?: string | null): string {
-  return filterFor(text, lang).safeSubstitute(text);
+export function safeSubstitute(text: string, options?: LanguageArg): string {
+  return filterFor(text, options).safeSubstitute(text);
 }
 
 /** Remove each match and tidy the leftover whitespace. */
-export function dropProfanity(text: string, lang?: string | null): string {
-  return filterFor(text, lang).dropProfanity(text);
+export function dropProfanity(text: string, options?: LanguageArg): string {
+  return filterFor(text, options).dropProfanity(text);
 }
 
 /** True if any rule matches. */
-export function containsProfanity(text: string, lang?: string | null): boolean {
-  return filterFor(text, lang).containsProfanity(text);
+export function containsProfanity(text: string, options?: LanguageArg): boolean {
+  return filterFor(text, options).containsProfanity(text);
 }
 
 /** True if a token or adjacent bigram sounds like blocked profanity (Double-Metaphone). */
-export function containsPhoneticProfanity(text: string, lang?: string | null): boolean {
-  return filterFor(text, lang).containsPhoneticProfanity(text);
+export function containsPhoneticProfanity(text: string, options?: LanguageArg): boolean {
+  return filterFor(text, options).containsPhoneticProfanity(text);
 }

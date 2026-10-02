@@ -64,11 +64,26 @@ export function buildExceptions(phrases: Iterable<string>): RegExp | null {
     .filter(Boolean)
     .sort((a, b) => b.length - a.length);
   if (cleaned.length === 0) return null;
-  const alt = cleaned.map((p) => {
-    const chars = [...p];
-    return boundary(chars[0]!, "left") + escapeRegex(p) + boundary(chars.at(-1)!, "right");
-  });
-  return new RegExp(alt.join("|"), "giu");
+  // Group phrases by their left-boundary kind and factor that lookbehind out: the two kinds
+  // ((?<!W) vs (?<=W)) can never both hold at one position, so grouping can't change which
+  // phrase matches there. Without this, hundreds of phrases each re-test a case-folded
+  // \p{L} lookbehind at every position (seconds per long text). Within a group, phrases
+  // stay longest-first (pythanity's order), and a uniform right boundary is factored too.
+  const groups = new Map<string, string[]>();
+  for (const p of cleaned) {
+    const left = boundary([...p][0]!, "left");
+    let g = groups.get(left);
+    if (!g) groups.set(left, (g = []));
+    g.push(p);
+  }
+  const parts: string[] = [];
+  for (const [left, members] of groups) {
+    const rights = members.map((p) => boundary([...p].at(-1)!, "right"));
+    const uniform = rights.every((r) => r === rights[0]);
+    const alts = members.map((p, i) => escapeRegex(p) + (uniform ? "" : rights[i]));
+    parts.push(`${left}(?:${alts.join("|")})${uniform ? rights[0] : ""}`);
+  }
+  return new RegExp(parts.join("|"), "giu");
 }
 
 /** Return the tokens / adjacent bigrams whose Double-Metaphone code is blocked. */

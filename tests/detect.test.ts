@@ -15,26 +15,46 @@ import { all, es } from "../src/languages.js";
 
 afterEach(() => setLanguageDetector(null));
 
+const multi = { multilingual: true } as const;
+
 describe("resolveLanguages", () => {
   it("defaults to English without a detector", () => {
-    expect(resolveLanguages("hello there")).toEqual(["en"]);
+    expect(resolveLanguages("hello there", multi)).toEqual(["en"]);
   });
 
-  it("adds the detected language when its list is registered", () => {
+  it("adds the detected language when multilingual and its list is registered", () => {
     registerLanguage(es);
     setLanguageDetector(() => "es");
-    expect(resolveLanguages("hola mundo")).toEqual(["en", "es"]);
+    expect(resolveLanguages("hola mundo", multi)).toEqual(["en", "es"]);
+  });
+
+  it("is English-only by default: no detection unless multilingual", () => {
+    registerLanguage(es);
+    let calls = 0;
+    setLanguageDetector(() => (calls++, "es"));
+    expect(resolveLanguages("hola mundo")).toEqual(["en"]);
+    expect(resolveLanguages("hola mundo", { multilingual: false, lang: "es" })).toEqual(["en"]);
+    expect(calls).toBe(0);
   });
 
   it("skips a detected language without a list", () => {
     setLanguageDetector(() => "xx");
-    expect(resolveLanguages("whatever")).toEqual(["en"]);
+    expect(resolveLanguages("whatever", multi)).toEqual(["en"]);
   });
 
-  it("lets an explicit lang override detection but keeps English", () => {
+  it("treats an explicit lang as multilingual, overriding detection, keeping English", () => {
     registerLanguage(es);
     setLanguageDetector(() => "fr");
     expect(resolveLanguages("x", "es")).toEqual(["en", "es"]);
+    expect(resolveLanguages("x", { lang: "es" })).toEqual(["en", "es"]);
+    expect(resolveLanguages("x", { multilingual: true, lang: "es" })).toEqual(["en", "es"]);
+  });
+
+  it("applies the same options to the helpers", () => {
+    registerLanguage(es);
+    setLanguageDetector(() => "es");
+    expect(getFilter("en")).toBe(getFilter(...resolveLanguages("hola mundo")));
+    expect(getFilter("en", "es")).toBe(getFilter(...resolveLanguages("hola mundo", multi)));
   });
 
   it("strips regions from detected codes", () => {

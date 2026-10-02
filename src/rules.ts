@@ -2,7 +2,7 @@
  * Parsing of rule / exception lines and building filters from registered language lists.
  */
 
-import { LEFT, RIGHT } from "./boundaries.js";
+import { LEFT, RIGHT, WORD_CLASS } from "./boundaries.js";
 import { Filter } from "./filter.js";
 import type { LanguageData, Rule } from "./types.js";
 
@@ -25,7 +25,7 @@ function stripOuterWordBoundary(pat: string): string {
 const REGEX_SYNTAX = "^$\\.*+?()[]{}|/";
 
 // Python's `\w` / `\d` / `\b` are Unicode-aware; JS's are ASCII-only even with the u flag.
-const W = "\\p{L}\\p{N}_";
+const W = WORD_CLASS.slice(1, -1); // class body, so it can also go inside other classes
 const OUTSIDE_CLASS: Record<string, string> = {
   w: `[${W}]`,
   W: `[^${W}]`,

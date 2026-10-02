@@ -1,6 +1,6 @@
 {
   "name": "curse-away",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Regex-based multilingual profanity detection, masking, and substitution for Node and the browser.",
   "license": "MIT",
   "author": "lemiffe",

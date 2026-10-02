@@ -37,7 +37,7 @@ async function enableDetection(): Promise<void> {
 
 export function buildReport(text: string): string {
   const detected = detectLanguage(text);
-  const langs = resolveLanguages(text);
+  const langs = resolveLanguages(text, { multilingual: true }); // the diagnostic always detects
   const f = getFilter(...langs);
   const lists = langs.map((l) => `profanity-${l}.txt`);
 

@@ -8,3 +8,6 @@
 // contraction's tail into the next word.
 export const LEFT = "(?<!\\p{L})(?<!\\p{L}['\\u2019])";
 export const RIGHT = "(?!\\p{L})";
+
+// Python's `\w` (Unicode word character) as translated by toJsPattern: JS's own \w is ASCII-only.
+export const WORD_CLASS = "[\\p{L}\\p{N}_]";
