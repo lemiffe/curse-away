@@ -1,0 +1,129 @@
+{
+  "name": "curse-away",
+  "version": "1.0.0",
+  "description": "Regex-based multilingual profanity detection, masking, and substitution for Node and the browser.",
+  "license": "MIT",
+  "author": "lemiffe",
+  "homepage": "https://github.com/lemiffe/curse-away",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lemiffe/curse-away.git"
+  },
+  "keywords": [
+    "profanity",
+    "censor",
+    "moderation",
+    "filter",
+    "mask",
+    "nlp"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./languages": {
+      "import": {
+        "types": "./dist/languages.d.ts",
+        "default": "./dist/languages.js"
+      },
+      "require": {
+        "types": "./dist/languages.d.cts",
+        "default": "./dist/languages.cjs"
+      },
+      "default": "./dist/languages.js"
+    },
+    "./detect": {
+      "import": {
+        "types": "./dist/detect.d.ts",
+        "default": "./dist/detect.js"
+      },
+      "require": {
+        "types": "./dist/detect.d.cts",
+        "default": "./dist/detect.cjs"
+      },
+      "default": "./dist/detect.js"
+    },
+    "./detect-light": {
+      "import": {
+        "types": "./dist/detect-light.d.ts",
+        "default": "./dist/detect-light.js"
+      },
+      "require": {
+        "types": "./dist/detect-light.d.cts",
+        "default": "./dist/detect-light.cjs"
+      },
+      "default": "./dist/detect-light.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "curse-away-check": "./dist/cli.cjs"
+  },
+  "scripts": {
+    "gen:data": "tsx scripts/build-data.ts",
+    "build": "tsx scripts/build-data.ts && tsup",
+    "test": "tsx scripts/build-data.ts && vitest run",
+    "typecheck": "tsx scripts/build-data.ts && tsc --noEmit -p tsconfig.lib.json && tsc --noEmit",
+    "check:text": "tsx scripts/build-data.ts && tsx scripts/curse-away-check.ts",
+    "import:ldnoobw": "tsx scripts/import-ldnoobw.ts",
+    "prepare": "tsx scripts/build-data.ts && tsup",
+    "bench": "tsx scripts/build-data.ts && tsx scripts/bench.ts"
+  },
+  "peerDependencies": {
+    "tinyld": "^1.3.4"
+  },
+  "peerDependenciesMeta": {
+    "tinyld": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "double-metaphone": "^2.0.1",
+    "tinyld": "^1.3.4",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "typesVersions": {
+    "*": {
+      "languages": [
+        "./dist/languages.d.ts"
+      ],
+      "detect": [
+        "./dist/detect.d.ts"
+      ],
+      "detect-light": [
+        "./dist/detect-light.d.ts"
+      ]
+    }
+  }
+}

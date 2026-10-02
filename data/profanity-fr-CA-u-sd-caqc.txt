@@ -1,0 +1,10 @@
+# Auto-generated from the LDNOOBW 'fr-CA-u-sd-caqc' list (LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words).
+# Obfuscation-tolerant, word-anchored, digit leetspeak classes.
+# safe-substitute placeholder = 'bleep' (curate per language).
+/\bn+[ ._-]*[o0]+[ ._-]*u+[ ._-]*n+[ ._-]*[e3]+\b/	bleep
+/\b[o0]+[ ._-]*[s5]+[ ._-]*[t7]+[ ._-]*[i1]+\b/	bleep
+/\bc+[ ._-]*r+[ ._-]*[i1]+[ ._-]*[s5]+[ ._-]*[s5]+\b/	bleep
+/\bc+[ ._-]*r+[ ._-]*[i1]+[ ._-]*[s5]+[ ._-]*[s5]+[ ._-]*[e3]+\b/	bleep
+/\bc+[ ._-]*[a4]+[ ._-]*[l1]+[ ._-]*[i1]+[ ._-]*c+[ ._-]*[e3]+\b/	bleep
+/\b[t7]+[ ._-]*[a4]+[ ._-]*[b8]+[ ._-]*[a4]+[ ._-]*r+[ ._-]*n+[ ._-]*[a4]+[ ._-]*k+\b/	bleep
+/\bv+[ ._-]*[i1]+[ ._-]*[a4]+[ ._-]*r+[ ._-]*[g9]+[ ._-]*[e3]+\b/	bleep

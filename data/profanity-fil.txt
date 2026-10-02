@@ -1,0 +1,15 @@
+# Auto-generated from the LDNOOBW 'fil' list (LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words).
+# Obfuscation-tolerant, word-anchored, digit leetspeak classes.
+# safe-substitute placeholder = 'bleep' (curate per language).
+/\bp+[ ._-]*u+[ ._-]*[t7]+[ ._-]*[a4]+[ ._-]*k+[ ._-]*[a4]+\b/	bleep
+/\bp+[ ._-]*u+[ ._-]*[t7]+[ ._-]*[a4]+[ ._-]*n+[ ._-]*[g9]+[ ._-]*[i1]+[ ._-]*n+[ ._-]*[a4]+\b/	bleep
+/\b[t7]+[ ._-]*[a4]+[ ._-]*n+[ ._-]*[g9]+[ ._-]*[i1]+[ ._-]*n+[ ._-]*[a4]+\b/	bleep
+/\b[b8]+[ ._-]*u+[ ._-]*r+[ ._-]*[a4]+[ ._-]*[t7]+\b/	bleep
+/\b[b8]+[ ._-]*[a4]+[ ._-]*y+[ ._-]*[a4]+[ ._-]*[g9]+\b/	bleep
+/\b[b8]+[ ._-]*[o0]+[ ._-]*[b8]+[ ._-]*[o0]+\b/	bleep
+/\bn+[ ._-]*[o0]+[ ._-]*[g9]+[ ._-]*n+[ ._-]*[o0]+[ ._-]*[g9]+\b/	bleep
+/\b[t7]+[ ._-]*[a4]+[ ._-]*n+[ ._-]*[g9]+[ ._-]*[a4]+\b/	bleep
+/\bu+[ ._-]*[l1]+[ ._-]*[o0]+[ ._-]*[l1]+\b/	bleep
+/\bk+[ ._-]*[a4]+[ ._-]*n+[ ._-]*[t7]+[ ._-]*[o0]+[ ._-]*[t7]+\b/	bleep
+/\b[a4]+[ ._-]*n+[ ._-]*[a4]+[ ._-]*k+[ ._-]*k+[ ._-]*[a4]+[ ._-]*n+[ ._-]*[g9]+[ ._-]*p+[ ._-]*u+[ ._-]*[t7]+[ ._-]*[a4]+\b/	bleep
+/\bj+[ ._-]*[a4]+[ ._-]*k+[ ._-]*[o0]+[ ._-]*[l1]+\b/	bleep

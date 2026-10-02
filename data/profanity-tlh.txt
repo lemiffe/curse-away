@@ -1,0 +1,6 @@
+# Auto-generated from the LDNOOBW 'tlh' list (LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words).
+# Obfuscation-tolerant, word-anchored, digit leetspeak classes.
+# safe-substitute placeholder = 'bleep' (curate per language).
+/\b[g9]+[ ._-]*h+[ ._-]*u+[ ._-]*y+[ ._-]*c+[ ._-]*h+[ ._-]*[a4]+\b/	bleep
+/\bq+[ ._-]*[i1]+[ ._-]*y+[ ._-]*[a4]+[ ._-]*h+\b/	bleep
+/\bq+[ ._-]*u+[ ._-]*v+[ ._-]*[a4]+[ ._-]*[t7]+[ ._-]*[l1]+[ ._-]*h+\b/	bleep
